@@ -2,47 +2,49 @@ package base;
 
 import com.microsoft.playwright.*;
 import org.testng.annotations.*;
+import utils.ConfigReader;
 
 public class BaseTest {
-    protected Playwright playwright;
-    protected Browser browser;
-    protected BrowserContext context;
-    protected Page page;
-    protected String baseUrl; // Biến dùng để lưu URL môi trường
+    private static final ThreadLocal<Playwright> tlPlaywright = new ThreadLocal<>();
+    private static final ThreadLocal<Browser> tlBrowser = new ThreadLocal<>();
+    private static final ThreadLocal<BrowserContext> tlContext = new ThreadLocal<>();
+    private static final ThreadLocal<Page> tlPage = new ThreadLocal<>();
 
-    // Hứng 2 giá trị từ thẻ <parameter> trong file XML
+    public static Page getPage() {
+        return tlPage.get();
+    }
+
     @Parameters({"browser", "env"})
     @BeforeMethod
     public void setUp(@Optional("chrome") String browserName, @Optional("https://www.saucedemo.com/") String env) {
-        playwright = Playwright.create();
-        this.baseUrl = env; // Lưu URL để lát nữa test case lấy ra dùng
+        Playwright playwright = Playwright.create();
+        tlPlaywright.set(playwright);
 
-        // 1. Tạo Options và chỉ định dùng thẳng Chrome trên máy
-        BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(false)
-                .setChannel("chrome"); // <--- Thêm dòng này
+        BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(false);
+        Browser browser = browserName.equalsIgnoreCase("firefox") ?
+                playwright.firefox().launch(options) :
+                playwright.chromium().launch(options);
+        tlBrowser.set(browser);
 
-        // 2. Chạy trình duyệt
-        if (browserName.equalsIgnoreCase("firefox")) {
-            // (Tạm thời chúng ta sẽ cấu hình Firefox sau)
-            browser = playwright.firefox().launch(options);
-        } else {
-            browser = playwright.chromium().launch(options);
-        }
+        BrowserContext context = browser.newContext();
+        tlContext.set(context);
 
-        context = browser.newContext();
-        page = context.newPage();
+        Page page = context.newPage();
+        tlPage.set(page);
+
+        page.navigate(env);
     }
 
     @AfterMethod
     public void tearDown() {
-        if (page != null) page.close();
-        if (context != null) context.close();
-        if (browser != null) browser.close();
-        if (playwright != null) playwright.close();
+        if (tlPage.get() != null) tlPage.get().close();
+        if (tlContext.get() != null) tlContext.get().close();
+        if (tlBrowser.get() != null) tlBrowser.get().close();
+        if (tlPlaywright.get() != null) tlPlaywright.get().close();
 
-    }
-    public Page getPage() {
-        return this.page;
+        tlPage.remove();
+        tlContext.remove();
+        tlBrowser.remove();
+        tlPlaywright.remove();
     }
 }

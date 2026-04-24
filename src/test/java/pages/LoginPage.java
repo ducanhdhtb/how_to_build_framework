@@ -1,29 +1,23 @@
 package pages;
 
 import com.microsoft.playwright.Page;
+import base.BaseTest;
 
 public class LoginPage {
     private Page page;
 
-    // 1. Lưu trữ các Locator
-    private String usernameInput = "#user-name";
-    private String passwordInput = "#password";
-    private String loginButton = "#login-button";
-    private String errorMessage = "h3[data-test='error']";
-
-    // 2. Constructor nhận 'page' từ BaseTest
-    public LoginPage(Page page) {
-        this.page = page;
+    public LoginPage() {
+        // Lấy đúng page của luồng hiện tại
+        this.page = BaseTest.getPage();
     }
 
-    // 3. Các hành động (Actions) trên trang
-    public void login(String username, String password) {
-        page.fill(usernameInput, username);
-        page.fill(passwordInput, password);
-        page.click(loginButton);
+    public void login(String user, String pass) {
+        page.fill("#user-name", user);
+        page.fill("#password", pass);
+        page.click("#login-button");
     }
 
     public String getErrorMessage() {
-        return page.locator(errorMessage).textContent();
+        return page.locator("h3[data-test='error']").textContent();
     }
 }
