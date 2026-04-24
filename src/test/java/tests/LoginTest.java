@@ -7,19 +7,16 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.regex.Pattern;
-
+import utils.JsonUtils;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class LoginTest extends BaseTest {
 
-    // Nguồn dữ liệu test (Test Data)
     @DataProvider(name = "loginData")
     public Object[][] getLoginData() {
-        return new Object[][] {
-                {"standard_user", "secret_sauce", "success"}, // Đăng nhập đúng
-                {"locked_out_user", "secret_sauce", "Epic sadface: Sorry, this user has been locked out."},
-                {"standard_user", "sai_pass", "Epic sadface: Username and password do not match any user in this service"}
-        };
+        // Gọi hàm tiện ích và truyền đường dẫn tương đối vào đây
+        String path = "src/test/resources/data/loginData.json";
+        return JsonUtils.getJsonData(path);
     }
 
     @Test(dataProvider = "loginData")
