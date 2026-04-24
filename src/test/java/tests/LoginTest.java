@@ -5,21 +5,21 @@ import pages.LoginPage;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
 import java.util.regex.Pattern;
-import utils.JsonUtils;
+import utils.ExcelUtils;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class LoginTest extends BaseTest {
 
-    @DataProvider(name = "loginData")
-    public Object[][] getLoginData() {
-        // Gọi hàm tiện ích và truyền đường dẫn tương đối vào đây
-        String path = "src/test/resources/data/loginData.json";
-        return JsonUtils.getJsonData(path);
+    @DataProvider(name = "excelData")
+    public Object[][] getExcelData() {
+        String path = "src/test/resources/data/LoginData.xlsx";
+        // Chúng ta gọi hàm từ ExcelUtils, truyền vào đường dẫn và tên Sheet
+        return ExcelUtils.getExcelData(path, "Sheet1");
     }
 
-    @Test(dataProvider = "loginData")
+    @Test(dataProvider = "excelData")
     public void testLoginFlow(String username, String password, String expectedResult) {
         // 1. Mở trang web bằng biến baseUrl đã hứng từ testng.xml trong BaseTest
         page.navigate(baseUrl);
