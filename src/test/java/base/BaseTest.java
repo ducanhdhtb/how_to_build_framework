@@ -41,4 +41,7 @@ public class BaseTest {
         if (browser != null) browser.close();
         if (playwright != null) playwright.close();
     }
+    public com.microsoft.playwright.Page getPage() {
+        return this.page;
+    }
 }
