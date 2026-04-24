@@ -6,6 +6,10 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.regex.Pattern;
+
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 public class LoginTest extends BaseTest {
 
     // Nguồn dữ liệu test (Test Data)
@@ -29,8 +33,8 @@ public class LoginTest extends BaseTest {
 
         // 3. Kiểm chứng kết quả (Assertion)
         if (expectedResult.equals("success")) {
-            // Nếu là test case thành công, kiểm tra URL xem đã chuyển trang chưa
-            Assert.assertTrue(page.url().contains("inventory.html"), "Lỗi: Không thể chuyển sang trang sản phẩm!");
+            // Thay thế cho lệnh Assert.assertTrue(...) cũ
+            assertThat(page).hasURL(Pattern.compile(".*inventory.html.*"));
         } else {
             // Nếu là test case thất bại, kiểm tra thông báo lỗi
             String actualError = loginPage.getErrorMessage();

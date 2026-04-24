@@ -1,0 +1,15 @@
+Bạn đã nắm bắt rất đúng bản chất của vấn đề rồi! Những gì bạn vừa liệt kê chính là một phần trong cơ chế **Actionability Checks (Kiểm tra khả năng tương tác)** nổi tiếng của Playwright.
+
+Khi bạn ra lệnh `page.click("#login-button")`, Playwright tuyệt đối không click mù quáng. Nó sẽ liên tục "quét" phần tử đó và chỉ thực sự nhấn chuột khi phần tử thỏa mãn **đồng thời cả 5 điều kiện** sau:
+
+1. **Attached (Đã gắn vào DOM):** Phần tử đó phải thực sự tồn tại trong cấu trúc HTML của trang web.
+2. **Visible (Hiển thị rõ ràng):** Nó không bị ẩn bởi CSS (như `display: none` hay `visibility: hidden`), không trong suốt (opacity > 0) và phải có kích thước thực tế (không phải 0x0 pixel).
+3. **Stable (Ổn định không di chuyển):** Đây là một điểm cực kỳ thông minh. Nếu nút bấm đang trong quá trình trượt hoặc bay từ ngoài vào (CSS animation), Playwright sẽ kiên nhẫn đợi đến khi nó **đứng yên hoàn toàn** mới click để tránh click trượt.
+4. **Receives Events (Không bị che khuất):** Tại tọa độ chính giữa của nút bấm, nó phải là phần tử nằm trên cùng. Không có bất kỳ phần tử nào khác (như một cái popup, quảng cáo, hay mảng màu mờ) đè lên nó chặn luồng click.
+5. **Enabled (Được kích hoạt):** Nút bấm không bị gắn thuộc tính vô hiệu hóa (`disabled`), ví dụ như nút "Submit" bị mờ đi khi bạn chưa nhập đủ thông tin.
+
+Playwright sẽ kiểm tra 5 điều kiện này lặp đi lặp lại (vài mili-giây một lần). Ngay khi cả 5 đèn đều bật xanh, nó sẽ click tức thì (đó là lý do bạn thấy nó chạy rất nhanh). Còn nếu sau 30 giây mà vẫn thiếu 1 trong 5 điều kiện, nó sẽ báo lỗi Timeout.
+
+Để xem cơ chế này hoạt động thực tế như thế nào, hãy tưởng tượng tình huống sau: 
+
+Bạn nhấn nút Login, trang web xử lý mất một lúc và hiện ra một biểu tượng xoay vòng (loading spinner) làm mờ toàn bộ màn hình. Theo bạn, nếu lúc này dòng code tiếp theo của Playwright cố gắng click vào nút "Sản phẩm", thao tác click đó sẽ bị chặn lại ở điều kiện số mấy trong 5 điều kiện ở trên?
