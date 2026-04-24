@@ -40,8 +40,9 @@ public class BaseTest {
         if (context != null) context.close();
         if (browser != null) browser.close();
         if (playwright != null) playwright.close();
+
     }
-    public com.microsoft.playwright.Page getPage() {
+    public Page getPage() {
         return this.page;
     }
 }
